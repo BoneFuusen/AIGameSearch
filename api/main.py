@@ -3,6 +3,7 @@ from data_models.SearchRequest import SearchRequest
 from data_models.SearchResponse import SearchResponse
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from query_filter import query_filter
 
 app = FastAPI(
     title="AIGameSearch",
@@ -22,6 +23,20 @@ game_search_system = GameSearchSystem()
 
 @app.post("/search", response_model=SearchResponse)
 async def search_games(request: SearchRequest):
+    is_valid, violations = query_filter.validate(request.query)
+
+    if not is_valid:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Запрос содержит запрещенные темы",
+                "error_code": "CONTENT_RESTRICTED",
+                "blocked_categories": ["violence", "erotica", "graphic_violence", "lgbt"],
+                "found_violations": violations,
+                "suggestion": "Измените запрос, убрав запрещенные термины"
+            }
+        )
+
     try:
         results = game_search_system.search(request.query, top_k=request.top_k)
 

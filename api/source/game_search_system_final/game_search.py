@@ -4,8 +4,7 @@ from sentence_transformers import SentenceTransformer
 
 
 class GameSearchSystem:
-    def __init__(self, model_path='./model', index_path='./index'):
-
+    def __init__(self, model_path='./source/game_search_system_final/model', index_path='./source/game_search_system_final/index'):
         self.model = SentenceTransformer(model_path)
         self.game_embeddings = np.load(f'{index_path}/game_embeddings.npy')
 
@@ -20,7 +19,6 @@ class GameSearchSystem:
         print(f"Поисковая система загружена: {len(self.game_embeddings)} игр")
 
     def search(self, query, top_k=10):
-
         query_embedding = self.model.encode([query])
 
         query_norm = query_embedding / np.linalg.norm(query_embedding)
@@ -43,9 +41,3 @@ class GameSearchSystem:
             })
 
         return results
-
-# search = GameSearchSystem()
-#
-# query = "action adventure game"
-# results = search.search(query, top_k=10)
-
